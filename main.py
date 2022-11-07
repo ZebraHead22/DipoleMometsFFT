@@ -3,6 +3,7 @@ import numpy as np
 import scipy as sc
 from matplotlib import pyplot as plt
 
+#Start
 df = pd.read_csv('dipole.dat', sep="\s+", skiprows=1, names=['frame', 'dip_x', 'dip_y', 'dip_z', '|dip|'])
 # timeframe = input("Укажите время разделения фреймов: ")
 # timeframe = float(timeframe)

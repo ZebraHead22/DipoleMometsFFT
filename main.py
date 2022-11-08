@@ -3,38 +3,37 @@ import numpy as np
 import scipy as sc
 from matplotlib import pyplot as plt
 
-#Start
-df = pd.read_csv('dipole.dat', sep="\s+", skiprows=1, names=['frame', 'dip_x', 'dip_y', 'dip_z', '|dip|'])
+df = pd.read_csv('dipole_gly.dat', sep="\s+", skiprows=1, names=['frame', 'dip_x', 'dip_y', 'dip_z', '|dip|'])
 # timeframe = input("Укажите время разделения фреймов: ")
 # timeframe = float(timeframe)
 timeframe = 5 * 10 ** -15
 df.insert(1, "time", df['frame'] * timeframe)
-print(df)
 # 1. Попробовать построить спектр без выбора столбца (пересчет фреймов во время, 1 фр = 5 фс, -15 степень)
 axis = '|dip|'
 y = np.array(df[axis])
 x = np.array(df['time'])
-plt.scatter(x, y, c='deeppink')
+plt.plot(x, y, c='r')
 plt.xlabel('time')
 plt.ylabel('dip')
 plt.show()
 
-axis_y = sc.fft.rfft(y)
-# n = y.size
-axis_x = sc.fft.rfftfreq(len(axis_y), timeframe)
-r = axis_x > 0
-r = r / 0.03
-plt.plot(ax, abs(axis_y), 'r')
-# plt.xlim(0, 0.25 * 10 ** -16)
-plt.xlabel('Freq')
+y_m = np.mean(y)
+y = y - y_m
+
+fft_data = np.abs(sc.fft.rfft(y)) / y.size
+fft_freqs = sc.fft.rfftfreq(len(y), d=timeframe)
+
+plt.plot(fft_freqs / (300 * 10 ** 8), fft_data, 'r')
+plt.xlabel('Frequency, cm^(-1)')
 plt.ylabel('Amplitude')
 
 # 2. Сделать окно Хэмминга, например, построить график промежуточный для дипольного момента
-ham = np.hamming(len(axis_y))
-new_y = y * ham
-axis_new_y = sc.rfft.fft(new_y)
-plt.plot(r, np.abs(axis_new_y))
-plt.show()
+# ham = np.bartlett(len(y)) / y.size
+# new_y = ham * y
+# axis_new_y = sc.fft.rfft(new_y)
+# plt.plot(fft_freqs / (300 * 10 ** 8), np.abs(axis_new_y))
+# plt.legend(['Without window', 'With window'])
+# plt.show()
 
 # 3. Выбор столбца
 # axis = input("По какому моменту строим спектр? ('dip_x', 'dip_y', 'dip_z', '|dip|'): ")

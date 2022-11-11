@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import scipy as sc
 from matplotlib import pyplot as plt
+from scipy import fft
 
 df = pd.read_csv('dipole_gly.dat', sep="\s+", skiprows=1, names=['frame', 'dip_x', 'dip_y', 'dip_z', '|dip|'])
 # timeframe = input("Укажите время разделения фреймов: ")
@@ -24,8 +25,10 @@ fft_data = np.abs(sc.fft.rfft(y)) / y.size
 fft_freqs = sc.fft.rfftfreq(len(y), d=timeframe)
 
 plt.plot(fft_freqs / (300 * 10 ** 8), fft_data, 'r')
-plt.xlabel('Frequency, cm^(-1)')
-plt.ylabel('Amplitude')
+plt.xlabel('Frequency ($cm^{-1}$)')
+plt.ylabel('Amplitude (a.u.)')
+plt.xlim([0, 6000])
+plt.show()
 
 # 2. Сделать окно Хэмминга, например, построить график промежуточный для дипольного момента
 # ham = np.bartlett(len(y)) / y.size

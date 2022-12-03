@@ -2,9 +2,8 @@ import pandas as pd
 import numpy as np
 import scipy as sc
 from matplotlib import pyplot as plt
-from scipy import signal
 
-df = pd.read_csv('dipole_gly.dat', sep="\s+", skiprows=1, names=['frame', 'dip_x', 'dip_y', 'dip_z', '|dip|'])
+df = pd.read_csv('dipole.dat', sep="\s+", skiprows=1, names=['frame', 'dip_x', 'dip_y', 'dip_z', '|dip|'])
 # timeframe = input("Укажите время разделения фреймов: ")
 # timeframe = float(timeframe)
 timeframe = 5 * 10 ** -15
@@ -18,15 +17,15 @@ plt.xlabel('time')
 plt.ylabel('dip')
 plt.show()
 fs = 1 / timeframe # частота дискретизаци, задается пользователем на основе снятых данных
-window = sc.signal.windows.chebwin(10000, 45) # окно
+window = sc.signal.windows.chebwin(4096, 45)
 
-f, SPM = sc.signal.welch(y, fs, window, 10000) # построение СПМ с использованием окна,
+f, SPM = sc.signal.welch(y, fs, window, 4096) # построение СПМ с использованием окна,
 # на выбор какого, использую окно Чебышева степени 3/2
 f_true = f / (300 * 10 ** 8) # перевод частот в волновое число, для удобства
 plt.semilogy(f_true, SPM)
 plt.xlim(0, 6000) # в каком дипазоне частот строить график
-plt.xlabel('Frequency ($cm^{-1}$)')
-plt.ylabel('Amplitude (a.u.)')
+plt.xlabel('Частота [cm^-1]')
+plt.ylabel('СПМ')
 plt.grid()
 plt.show()
 

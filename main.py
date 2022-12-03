@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import scipy as sc
 from matplotlib import pyplot as plt
-from scipy import fft
+from scipy import signal
 
 df = pd.read_csv('dipole_gly.dat', sep="\s+", skiprows=1, names=['frame', 'dip_x', 'dip_y', 'dip_z', '|dip|'])
 # timeframe = input("Укажите время разделения фреймов: ")
@@ -17,26 +17,29 @@ plt.plot(x, y, c='r')
 plt.xlabel('time')
 plt.ylabel('dip')
 plt.show()
+fs = 1 / timeframe # частота дискретизаци, задается пользователем на основе снятых данных
+window = sc.signal.windows.chebwin(10000, 45) # окно
 
-y_m = np.mean(y)
-y = y - y_m
-
-fft_data = np.abs(sc.fft.rfft(y)) / y.size
-fft_freqs = sc.fft.rfftfreq(len(y), d=timeframe)
-
-plt.plot(fft_freqs / (300 * 10 ** 8), fft_data, 'r')
+f, SPM = sc.signal.welch(y, fs, window, 10000) # построение СПМ с использованием окна,
+# на выбор какого, использую окно Чебышева степени 3/2
+f_true = f / (300 * 10 ** 8) # перевод частот в волновое число, для удобства
+plt.semilogy(f_true, SPM)
+plt.xlim(0, 6000) # в каком дипазоне частот строить график
 plt.xlabel('Frequency ($cm^{-1}$)')
 plt.ylabel('Amplitude (a.u.)')
-plt.xlim([0, 6000])
+plt.grid()
+plt.show()
+
+f1, SPM1 = sc.signal.welch(y, fs, 'boxcar', 1000) # СПМ без окон
+f_true1 = f1 / (300 * 10 ** 8)
+plt.semilogy(f_true1, SPM1)
+plt.xlim(0, 6000)
+plt.xlabel('Частота [cm^-1]')
+plt.ylabel('СПМ')
+plt.grid()
 plt.show()
 
 # 2. Сделать окно Хэмминга, например, построить график промежуточный для дипольного момента
-# ham = np.bartlett(len(y)) / y.size
-# new_y = ham * y
-# axis_new_y = sc.fft.rfft(new_y)
-# plt.plot(fft_freqs / (300 * 10 ** 8), np.abs(axis_new_y))
-# plt.legend(['Without window', 'With window'])
-# plt.show()
 
 # 3. Выбор столбца
 # axis = input("По какому моменту строим спектр? ('dip_x', 'dip_y', 'dip_z', '|dip|'): ")
